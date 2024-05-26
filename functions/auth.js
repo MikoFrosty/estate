@@ -3,7 +3,7 @@ const ImageKit = require("imagekit");
 exports.handler = async function(event, context) {
   const imagekit = new ImageKit({
     publicKey: "public_1ymwqbS+ZFU+iWlHlVXrNmoW6FA=",
-    privateKey: "private_ZbdrHLQhN3IcrNT8Jlgjg2kXYKU=",
+    privateKey: "",
     urlEndpoint: "https://ik.imagekit.io/deqylxaey/"
   });
 
