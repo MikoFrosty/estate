@@ -31,10 +31,20 @@ const authenticator = async () => {
 function App() {
   const [id, setId] = useState<string | number>(1);
   const [title, setTitle] = useState<string>("none");
+  const [description, setDescription] = useState<string>("");
   const [uploading, setUploading] = useState<boolean>(false);
   const [progress, setProgress] = useState<number>(0);
   const [lastImageFilepath, setLastImageFilepath] = useState<any>(null);
+  const lastImageId = lastImageFilepath?.split("/")?.pop()?.split("-")[0];
+  const lastImageTitle = lastImageFilepath
+    ?.split("/")
+    ?.pop()
+    ?.split("-")[1]
+    .split("_")
+    .slice(0, -1)
+    .join(" ");
   const [loadingLastId, setLoadingLastId] = useState<boolean>(true);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     const lastUploadedEndpoint = "/last-uploaded";
@@ -69,11 +79,13 @@ function App() {
     setProgress(0);
     setId((prev) => (Number(prev) + 1).toString());
     setTitle("none");
+    setDescription("");
     setLastImageFilepath(res.filePath);
   };
 
   const onUploadStart = (evt: any) => {
     setUploading(true);
+    setErrorMessage(null);
   };
 
   const onUploadProgress = (progress: any) => {
@@ -81,6 +93,29 @@ function App() {
       const percentComplete = (progress.loaded / progress.total) * 100;
       setProgress(percentComplete);
     }
+  };
+
+  const onUploadError = (err: any) => {
+    setUploading(false);
+    setProgress(0);
+    console.log("error", err.message);
+    setErrorMessage(err.message);
+  };
+
+  const getMetaData = () => {
+    type MetaData = {
+      id: number;
+      title: string;
+      description?: string;
+    };
+    const metaData: MetaData = {
+      id: Number(id),
+      title,
+    };
+    if (description) {
+      metaData["description"] = description;
+    }
+    return metaData;
   };
 
   return (
@@ -112,23 +147,26 @@ function App() {
         </div>
       )}
       {!uploading && (
-        <h1
-          style={{
-            position: "sticky",
-            top: 0,
-            left: 0,
-            width: "100%",
-            textAlign: "center",
-          }}
-        >
-          Estate Items
-        </h1>
+        <>
+          {" "}
+          <h1
+            style={{
+              fontSize: "2rem",
+            }}
+          >
+            Grandma's Estate
+          </h1>
+          <p>
+            Enter title and additional notes (optional), then select or capture
+            a photo to upload.
+          </p>
+        </>
       )}
       {/* Input for ID */}
-      <label className="input-label" htmlFor="id">
-        Next ID
-      </label>
-      <input
+      {/* <label className="input-label" htmlFor="id" style={{ marginBottom: 10 }}>
+        Next ID: {id}
+      </label> */}
+      {/* <input
         id="id"
         disabled
         type="number"
@@ -136,10 +174,19 @@ function App() {
         placeholder="Starting ID"
         value={id}
         onChange={(e) => setId(e.target.value)}
-      />
+      /> */}
       {/* Input for Title */}
       <label className="input-label" htmlFor="title">
-        Next Title
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            paddingRight: "15px",
+          }}
+        >
+          <span>Next Title</span>
+          <span style={{ color: "green" }}>Next ID: {id}</span>
+        </div>
       </label>
       <input
         id="title"
@@ -147,6 +194,16 @@ function App() {
         placeholder="Title"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
+      />
+      {/* Input for Notes */}
+      <label className="input-label" htmlFor="description">
+        Notes
+      </label>
+      <textarea
+        id="description"
+        placeholder="Notes"
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
       />
       {/* Filename Preview */}
       {/* <p>
@@ -158,30 +215,47 @@ function App() {
           <IKUpload
             fileName={`${id}-${title}.jpg`}
             useUniqueFileName={true}
-            onError={console.error}
+            onError={onUploadError}
             onUploadStart={onUploadStart}
             onSuccess={onUploadSuccess}
             onUploadProgress={onUploadProgress}
-            customMetadata={{ id: Number(id), title }}
+            customMetadata={getMetaData()}
+            folder="/grandma"
           />
-          Upload Next Image
+          Upload Next Item
         </label>
       )}
+      {/* horizontal rule */}
+      <hr style={{ margin: "40px 0", width: "100%" }} />
       {/* Image Preview */}
       {lastImageFilepath && (
         <>
-          <h2>Last Image Preview</h2>
-          <IKImage
-            urlEndpoint={urlEndpoint}
-            path={lastImageFilepath || ""}
-            width="250"
-          />
-          {/* <p>
+          <div
+            style={{
+              marginTop: 24,
+              border: "1px solid black",
+              borderRadius: "5px",
+              backgroundColor: "#fffe",
+              color: "black",
+            }}
+          >
+            <h2 style={{ margin: 6 }}>Last Upload - ID: {lastImageId}</h2>
+            <p style={{ margin: 0 }}>{lastImageTitle}</p>
+            <IKImage
+              urlEndpoint={urlEndpoint}
+              path={lastImageFilepath || ""}
+              width="290"
+              // add border
+              style={{ border: "1px solid black", borderRadius: "5px" }}
+            />
+            {/* <p>
             <strong>META DATA</strong>
             {JSON.stringify(lastImageResponse)}
           </p> */}
+          </div>
         </>
       )}
+      {errorMessage && <p style={{ color: "red" }}>UPLOAD ERROR</p>}
     </IKContext>
   );
 }

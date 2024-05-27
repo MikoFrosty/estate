@@ -32,7 +32,7 @@
 .progress-bar {
   width: 0;
   height: 100%;
-  background-color: #1400f0;
+  background-color: #0024f0;
 }
 
 /* loading spinner */
@@ -61,17 +61,28 @@ input {
   font-size: 1.5rem;
 }
 
+#description {
+  width: 90%;
+  padding: 0.5rem;
+  margin: 0.5rem 0;
+  font-size: 1rem;
+}
+
 input[type="file"] {
   display: none;
 }
 
 .custom-file-upload {
-  border: 1px solid #ccc;
+  background-color: #0024f0;
+  border-radius: 0.5rem;
   display: inline-block;
   padding: 0.5rem;
   cursor: pointer;
   width: 90%;
-  margin-top: 1rem;
+  margin-top: 1.5rem;
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: white;
 }
 
 .input-label {
