@@ -37,7 +37,7 @@ export default function Upload() {
 
         const data = await response.json();
         setLastImageFilepath(data.filePath);
-        const [lastImageId, lastImageTitle] = data.name.split("-");
+        const [lastImageId] = data.name.split("-");
         lastImageId && setId(Number(lastImageId) + 1);
       } catch (error: any) {
         console.error(`Failed to get last image: ${error.message}`);
@@ -56,7 +56,7 @@ export default function Upload() {
     setLastImageFilepath(res.filePath);
   };
 
-  const onUploadStart = (evt: any) => {
+  const onUploadStart = () => {
     setUploading(true);
     setErrorMessage(null);
   };
